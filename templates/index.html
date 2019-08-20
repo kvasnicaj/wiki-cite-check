@@ -1,0 +1,18 @@
+{% extends "layouts/main.html" %}
+{% block title %}Wiki cite check{% endblock %}
+{% block content %}
+<div>
+    <div class="align-items-center p-3 my-3 mt-5 bg-light rounded box-shadow">
+        <h1>Wikipedia cite check</h1>
+        <p class="lead text-muted">Zkontroluje odkazy v referencích stránky na české wikipedii. Pokud už není odkaz dostupný, 
+        tak se pokusí najít jeho archivní verzi ve webovém archivu Národní knihovny ČR (<a href="https://webarchiv.cz">Webarchiv.cz</a>). </p>
+        <form class="form-inline" method="POST" action="{{ url_for('result')}}">
+            {{ form.hidden_tag() }}
+            <legend class="b-4">Zadej název nebo odkaz stránky na Wikipedii</legend>
+            <div class="form-group">
+                {{ form.page(class='form-control form-control-lg input-width', size='35')}}
+            </div>
+            {{ form.submit(class='btn btn-outline-primary ml-2')}}
+        </form>
+    </div>
+    {% endblock %}

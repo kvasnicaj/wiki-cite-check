@@ -1,0 +1,9 @@
+{% extends "layouts/main.html" %}
+{% block title %}Error{% endblock %}
+{% block content %}
+<div>
+    <div class="align-items-center p-3 my-3 mt-5 bg-light rounded box-shadow">
+        <h1>Wikipedia cite check</h1>
+        <p class="lead">Stránka nebyla nalezena. Zkuste to znovu. <a href='{{url_for('index')}}'>Zpět.</a></p>
+    </div>
+    {% endblock %}

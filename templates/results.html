@@ -1,0 +1,60 @@
+{% extends "layouts/main.html" %}
+{% block title %}Wiki cite check{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center p-3 mt-5 bg-light rounded box-shadow">
+    <div class="lh-100">
+        <h6 class="mb-0 lh-100">{{ desc.title }}</h6>
+        <small><a href="{{ desc.url }}">{{ desc.url }}</a><br>
+            <p class="mt-2">
+                {{ desc.summary|truncate(1000, False, ' ') }}
+                <a href="{{desc.url}}">(...)</a>
+            </p>
+        </small>
+        <small class="d-block text-right mt-3">
+            <a href="{{ url_for('index') }}">Nové hledání</a>
+        </small>
+    </div>
+</div>
+
+<div class="my-3 p-3 bg-white rounded box-shadow">
+    <div class="border-bottom border-gray pb-2 mb-0">
+        <h6>Odkazy</h6>
+        <div class="text-right font-weight-light">Zobrazeno {{page*limit}} - {{page*limit+limit}} / {{max}}</div>
+    </div>
+    {% for row in rows %}
+    <div class="media text-muted pt-3">
+        <button type="button" class="btn btn-sm mr-2 btn-width {{row.color}}" disabled>{{row.sign}}</button>
+        <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <strong class="text-gray-dark" data-toggle="tooltip" data-placement="top"
+                    title="{{row.link}}">{{row.link|truncate(100, True, '...')}}</strong>
+                {% if row.sign == 'W' %}
+                <a href="https://wayback.webarchiv.cz/wayback/*/{{row.link}}">Jdi na Webarchiv.cz</a>
+                {% elif row.sign == 'L' %}
+                <a href="{{row.link}}">Jdi na živý web</a>
+                {% endif %}
+            </div>
+            <span class="d-block">Status code: <a
+                    href="https://httpstatuses.com/{{row.status_code}}">{{row.status_code}}</a></span>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="text-right">
+        {% if (page)*limit >= limit %}
+        <div class="btn-group btn-sm mt-2">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('results', page=page-1, name=desc.title) }}">
+                předchozí</a>
+        </div>
+        {% endif %}
+
+        {% if (page-1)*limit < (max - limit) and max > limit %}
+        <div class="btn-group btn-sm mt-2">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('results', page=page+1, name=desc.title) }}">
+                další
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
