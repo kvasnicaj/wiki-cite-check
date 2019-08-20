@@ -19,6 +19,8 @@ class Wiki():
             self.wikipage = wikipedia.WikipediaPage(name)
         except wikipedia.exceptions.PageError:
             self.wikipage = None
+        except wikipedia.exceptions.DisambiguationError as e:
+            self.wikipage = wikipedia.WikipediaPage(e.options[0])
 
     def getDescription(self):
         ''' return namedtuple with title, url and summary '''
