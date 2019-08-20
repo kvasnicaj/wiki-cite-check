@@ -1,0 +1,1 @@
+Jednoduchá aplikace, která zkontroluje odkazy v referencích stránky na české wikipedii. Pokud už není odkaz dostupný, tak se pokusí najít jeho archivní verzi ve webovém archivu Národní knihovny ČR (Webarchiv.cz).
