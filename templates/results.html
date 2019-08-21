@@ -20,7 +20,13 @@
 <div class="my-3 p-3 bg-white rounded box-shadow">
     <div class="border-bottom border-gray pb-2 mb-0">
         <h6>Odkazy</h6>
-        <div class="text-right font-weight-light">Zobrazeno {{page*limit}} - {{page*limit+limit}} / {{max}}</div>
+        <div class="text-right font-weight-light">Zobrazeno {{page*limit}} - 
+        {% if page*limit+limit < max %}
+        {{page*limit+limit}} 
+        {% else %}
+        {{max}}
+        {% endif %}
+        / {{max}}</div>
     </div>
     {% for row in rows %}
     <div class="media text-muted pt-3">
