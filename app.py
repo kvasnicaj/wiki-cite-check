@@ -1,14 +1,15 @@
+from link import Link
 from flask import Flask, redirect, render_template, url_for
 
 from config.config import Config
 from forms import PageForm
-from link import Link
+
+from models import Search, db
 from wiki import Wiki
 
 app = Flask(__name__)
-
-configuration = Config()
-app.config.from_object(configuration)
+app.config.from_object(Config)
+db.init_app(app)
 
 
 @app.route('/',)
@@ -30,7 +31,13 @@ def result():
         num = len(wp.wikipage.references)
         end = 10 if num > 10 else num
 
-        for index in range(0, end-1):
+        # log form to db
+        db.session.add(Search(numLinks=num,
+                              keyword=form.page.data,
+                              ))
+        db.session.commit()
+
+        for index in range(0, end):
             link = Link(wp.wikipage.references[index])
             rows.append(link.isLive())
 
@@ -57,7 +64,7 @@ def results(name, page):
     if len(wp.wikipage.references) < end:
         end = len(wp.wikipage.references)
 
-    for index in range(start, end-1):
+    for index in range(start, end):
         link = Link(wp.wikipage.references[index])
         rows.append(link.isLive())
 
