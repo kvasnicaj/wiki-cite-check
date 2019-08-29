@@ -3,7 +3,7 @@ from collections import namedtuple
 import requests
 from bs4 import BeautifulSoup
 
-from models import LinksLog, db
+from src.models import LinksLog, db
 
 Result = namedtuple('Result',
                     ['sign', 'status_code', 'link', 'color'])

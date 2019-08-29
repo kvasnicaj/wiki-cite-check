@@ -1,11 +1,10 @@
-from link import Link
 from flask import Flask, redirect, render_template, url_for
 
+from src.forms import PageForm
+from src.link import Link
+from src.models import Search, db
+from src.wiki import Wiki
 from config.config import Config
-from forms import PageForm
-
-from models import Search, db
-from wiki import Wiki
 
 app = Flask(__name__)
 app.config.from_object(Config)
