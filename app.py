@@ -1,14 +1,14 @@
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, render_template
 
+from src.forms import PageForm
+from src.link import Link
+from src.models import Search, LinksLog, db, logSearch
+from src.wiki import Wiki
 from config.config import Config
-from forms import PageForm
-from link import Link
-from wiki import Wiki
 
 app = Flask(__name__)
-
-configuration = Config()
-app.config.from_object(configuration)
+app.config.from_object(Config)
+db.init_app(app)
 
 
 @app.route('/',)
@@ -18,48 +18,59 @@ def index():
     return render_template('index.html', form=form)
 
 
-@app.route('/result', methods=['GET', 'POST'])
-def result():
-    ''' First ten results right after submitting the form '''
+@app.route('/results', methods=['GET', 'POST'], defaults={'page': 0,
+                                                          'name': 'submit'})
+@app.route('/results/<name>/<int:page>')
+def results(name, page):
+    ''' First ten results right after submitting the form
+    and thne for the next pages come without a form
+    but with GET parametrs'''
     form = PageForm()
 
     if form.validate_on_submit():
         wp = Wiki(form.page.data)
-        rows = []
+        start = 0
 
-        num = len(wp.wikipage.references)
+        try:
+            num = len(wp.wikipage.references)
+        except KeyError:
+            logSearch(form.page.data, 0)
+            return render_template('errors/noresult.html',
+                                   message='Stránka nemá žádné reference.')
+        except AttributeError:
+            logSearch(form.page.data, -1)
+            return render_template('errors/noresult.html',
+                                   message='Tato stránka neexistuje.')
+
+        logSearch(form.page.data, num)
         end = 10 if num > 10 else num
 
-        for index in range(0, end-1):
-            link = Link(wp.wikipage.references[index])
-            rows.append(link.isLive())
-
-        return render_template('results.html',
-                               desc=wp.getDescription(),
-                               rows=rows,
-                               page=0,
-                               limit=Config.ROW_LIMIT,
-                               max=len(wp.wikipage.references))
     else:
-        return redirect(url_for('noresult'))
+        wp = Wiki(name)
 
+        try:
+            num = len(wp.wikipage.references)
+        except AttributeError:
+            return render_template('errors/noresult.html',
+                                   message='Tato stránka neexistuje.')
 
-@app.route('/results/<name>/<page>')
-def results(name, page):
-    ''' Results for the next pages that come without a form
-    but with GET parametrs'''
-    wp = Wiki(name)
+        start = Config.ROW_LIMIT * int(page)
+        end = start + Config.ROW_LIMIT
+
+        if num < end:
+            end = num
+
     rows = []
-
-    start = Config.ROW_LIMIT * int(page)
-    end = start + Config.ROW_LIMIT
-
-    if len(wp.wikipage.references) < end:
-        end = len(wp.wikipage.references)
-
-    for index in range(start, end-1):
+    for index in range(start, end):
         link = Link(wp.wikipage.references[index])
-        rows.append(link.isLive())
+        result = link.isLive()
+        rows.append(result)
+
+        # log result to db
+        db.session.add(LinksLog(url=result.link,
+                                status=result.status_code,
+                                wal=result.sign))
+        db.session.commit()
 
     return render_template('results.html',
                            desc=wp.getDescription(),
@@ -67,11 +78,6 @@ def results(name, page):
                            page=int(page),
                            limit=Config.ROW_LIMIT,
                            max=len(wp.wikipage.references))
-
-
-@app.route('/noresult')
-def noresult():
-    return render_template('errors/noresult.html')
 
 
 @app.errorhandler(404)
