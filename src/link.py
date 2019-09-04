@@ -3,8 +3,6 @@ from collections import namedtuple
 import requests
 from bs4 import BeautifulSoup
 
-from src.models import LinksLog, db
-
 Result = namedtuple('Result',
                     ['sign', 'status_code', 'link', 'color'])
 
@@ -28,18 +26,6 @@ class Link():
         except Exception:
             return False
 
-    def log(self, result):
-        ''' save result to database '''
-        try:
-            status = int(result.status_code)
-        except ValueError:
-            status = 0
-
-        db.session.add(LinksLog(url=result.link,
-                                status=status,
-                                wal=result.sign))
-        db.session.commit()
-
     def isLive(self):
         ''' based on code returns dictionary with statuses and link,
         if the page is not live try Webarchiv.
@@ -61,7 +47,6 @@ class Link():
         else:
             result = Result('W', status_code, self.link, self.colors[2])
 
-        self.log(result)
         return result
 
     class Webarchiv():

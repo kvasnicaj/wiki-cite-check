@@ -33,3 +33,11 @@ class LinksLog(db.Model):
             'keyword': self.keyword,
             'wal': self.wal
         }
+
+
+def logSearch(keyword, num):
+    # log form to db
+    db.session.add(Search(numLinks=num,
+                          keyword=keyword,
+                          ))
+    db.session.commit()

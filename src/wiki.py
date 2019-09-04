@@ -24,8 +24,11 @@ class Wiki():
 
     def getDescription(self):
         ''' return namedtuple with title, url and summary '''
-        return Description(self.wikipage.title, self.wikipage.url,
-                           self.wikipage.summary)
+        try:
+            return Description(self.wikipage.title, self.wikipage.url,
+                               self.wikipage.summary)
+        except AttributeError:
+            return None
 
     def linksGenerator(self):
         ''' creates generator for list of URLs of external links on a page
