@@ -2,7 +2,7 @@ from flask import Flask, render_template
 
 from src.forms import PageForm
 from src.link import Link
-from src.models import Search, LinksLog, db, logSearch
+from src.models import LinksLog, db, logSearch
 from src.wiki import Wiki
 from config.config import Config
 
