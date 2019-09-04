@@ -30,24 +30,24 @@ class Link():
         ''' based on code returns dictionary with statuses and link,
         if the page is not live try Webarchiv.
         TODO distinguishing between a page that is not in the archive
-             and not just available online
+             and page in the archive but not available online
         '''
         status_code = self.statusCode()
 
         # failed to get status from page
         if status_code is False:
-            return Result('E', 'Nepodařilo se připojit ke stránce',
-                          self.link, self.colors[1])
-
-        # page si live
-        if status_code < self.live_wall:
-            return Result('L', status_code, self.link, self.colors[0])
-
+            result = Result('E', 0, self.link, self.colors[1])
+        # failed to get status from page
+        elif status_code < self.live_wall:
+            result = Result('L', status_code, self.link, self.colors[0])
         # page is not available in the archive
-        if self.Webarchiv(self.link).checkAvailability() is None:
-            return Result('E', status_code, self.link, self.colors[1])
+        elif self.Webarchiv(self.link).checkAvailability() is None:
+            result = Result('E', status_code, self.link, self.colors[1])
+        # page is available in the archive
         else:
-            return Result('W', status_code, self.link, self.colors[2])
+            result = Result('W', status_code, self.link, self.colors[2])
+
+        return result
 
     class Webarchiv():
         ''' inner class for accessing web archive'''
